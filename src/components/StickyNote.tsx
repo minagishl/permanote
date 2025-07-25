@@ -66,18 +66,23 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
     onBringToFront(note.id); // Bring to front when content is clicked
     console.log('Content clicked, clickCount:', clickCount);
     
-    setClickCount(prev => prev + 1);
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
 
     if (clickTimeout) {
       clearTimeout(clickTimeout);
     }
 
+    // Check for double click immediately
+    if (newCount >= 2) {
+      console.log('Double click detected! Starting edit mode');
+      setIsEditing(true);
+      setClickCount(0);
+      return;
+    }
+
     const timeout = setTimeout(() => {
-      console.log('Click timeout, final count:', clickCount + 1);
-      if (clickCount + 1 >= 2) {
-        console.log('Double click detected! Starting edit mode');
-        setIsEditing(true);
-      }
+      console.log('Click timeout, resetting count');
       setClickCount(0);
     }, 300);
 
