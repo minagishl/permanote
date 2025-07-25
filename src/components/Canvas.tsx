@@ -11,7 +11,7 @@ export function Canvas({ notes, onNotesChange }: CanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [clickCount, setClickCount] = useState(0);
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [clickTimeout, setClickTimeout] = useState<number | null>(null);
   const [maxZIndex, setMaxZIndex] = useState(1);
 
   // Initialize z-index for existing notes

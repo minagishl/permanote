@@ -18,7 +18,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [clickCount, setClickCount] = useState(0);
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [clickTimeout, setClickTimeout] = useState<number | null>(null);
   const noteRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -115,7 +115,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
     });
   }, [note, onUpdate]);
 
-  const handleBlur = useCallback((e: any) => {
+  const handleBlur = useCallback(() => {
     console.log('Textarea blur - exiting edit mode');
     setIsEditing(false);
   }, []);
