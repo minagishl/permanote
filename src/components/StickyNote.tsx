@@ -11,83 +11,104 @@ interface StickyNoteProps {
   onBringToFront: (noteId: string) => void;
 }
 
-export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyNoteProps) {
+export function StickyNote({
+  note,
+  onUpdate,
+  onDelete,
+  onBringToFront,
+}: StickyNoteProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
-  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [resizeStart, setResizeStart] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
   const [clickCount, setClickCount] = useState(0);
   const [clickTimeout, setClickTimeout] = useState<number | null>(null);
   const noteRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleMouseDown = useCallback((e: any) => {
-    if (isEditing || isResizing) return;
-    
-    e.preventDefault();
-    e.stopPropagation(); // Stop event bubbling
-    onBringToFront(note.id); // Bring to front when starting to drag
-    setIsDragging(true);
-    
-    const rect = noteRef.current?.getBoundingClientRect();
-    if (rect) {
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+  const handleMouseDown = useCallback(
+    (e: any) => {
+      if (isEditing || isResizing) return;
+
+      e.preventDefault();
+      e.stopPropagation(); // Stop event bubbling
+      onBringToFront(note.id); // Bring to front when starting to drag
+      setIsDragging(true);
+
+      const rect = noteRef.current?.getBoundingClientRect();
+      if (rect) {
+        setDragOffset({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        });
+      }
+    },
+    [isEditing, isResizing, onBringToFront, note.id]
+  );
+
+  const handleNoteClick = useCallback(
+    (e: any) => {
+      e.stopPropagation(); // Prevent canvas click
+      onBringToFront(note.id); // Bring to front when clicked
+    },
+    [onBringToFront, note.id]
+  );
+
+  const handleResizeStart = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsResizing(true);
+
+      setResizeStart({
+        x: e.clientX,
+        y: e.clientY,
+        width: note.width,
+        height: note.height,
       });
-    }
-  }, [isEditing, isResizing, onBringToFront, note.id]);
+    },
+    [note.width, note.height]
+  );
 
-  const handleNoteClick = useCallback((e: any) => {
-    e.stopPropagation(); // Prevent canvas click
-    onBringToFront(note.id); // Bring to front when clicked
-  }, [onBringToFront, note.id]);
+  const handleContentClick = useCallback(
+    (e: any) => {
+      e.stopPropagation();
 
-  const handleResizeStart = useCallback((e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(true);
-    
-    setResizeStart({
-      x: e.clientX,
-      y: e.clientY,
-      width: note.width,
-      height: note.height,
-    });
-  }, [note.width, note.height]);
+      if (isDragging || isResizing) return;
 
+      onBringToFront(note.id); // Bring to front when content is clicked
+      console.log('Content clicked, clickCount:', clickCount);
 
-  const handleContentClick = useCallback((e: any) => {
-    e.stopPropagation();
-    
-    if (isDragging || isResizing) return;
-    
-    onBringToFront(note.id); // Bring to front when content is clicked
-    console.log('Content clicked, clickCount:', clickCount);
-    
-    const newCount = clickCount + 1;
-    setClickCount(newCount);
+      const newCount = clickCount + 1;
+      setClickCount(newCount);
 
-    if (clickTimeout) {
-      clearTimeout(clickTimeout);
-    }
+      if (clickTimeout) {
+        clearTimeout(clickTimeout);
+      }
 
-    // Check for double click immediately
-    if (newCount >= 2) {
-      console.log('Double click detected! Starting edit mode');
-      setIsEditing(true);
-      setClickCount(0);
-      return;
-    }
+      // Check for double click immediately
+      if (newCount >= 2) {
+        console.log('Double click detected! Starting edit mode');
+        setIsEditing(true);
+        setClickCount(0);
+        return;
+      }
 
-    const timeout = setTimeout(() => {
-      console.log('Click timeout, resetting count');
-      setClickCount(0);
-    }, 300);
+      const timeout = setTimeout(() => {
+        console.log('Click timeout, resetting count');
+        setClickCount(0);
+      }, 300);
 
-    setClickTimeout(timeout);
-  }, [isDragging, isResizing, clickCount, clickTimeout, onBringToFront, note.id]);
+      setClickTimeout(timeout);
+    },
+    [isDragging, isResizing, clickCount, clickTimeout, onBringToFront, note.id]
+  );
 
   // Use useEffect to handle focus when editing starts
   useEffect(() => {
@@ -104,16 +125,18 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
     }
   }, [isEditing]);
 
-  const handleContentChange = useCallback((e: any) => {
-    e.stopPropagation();
-    const target = e.currentTarget as HTMLTextAreaElement;
-    console.log('Content changing:', target.value); // Debug log
-    onUpdate({
-      ...note,
-      content: target.value,
-      updated: new Date(),
-    });
-  }, [note, onUpdate]);
+  const handleContentChange = useCallback(
+    (e: any) => {
+      e.stopPropagation();
+      const target = e.currentTarget as HTMLTextAreaElement;
+      onUpdate({
+        ...note,
+        content: target.value,
+        updated: new Date(),
+      });
+    },
+    [note, onUpdate]
+  );
 
   const handleBlur = useCallback(() => {
     console.log('Textarea blur - exiting edit mode');
@@ -134,40 +157,49 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
     console.log('Textarea clicked');
   }, []);
 
-  const handleDeleteClick = useCallback((e: any) => {
-    e.stopPropagation();
-    onDelete(note.id);
-  }, [note.id, onDelete]);
+  const handleDeleteClick = useCallback(
+    (e: any) => {
+      e.stopPropagation();
+      onDelete(note.id);
+    },
+    [note.id, onDelete]
+  );
 
-  const toggleNoteType = useCallback((e: any) => {
-    e.stopPropagation();
-    onUpdate({
-      ...note,
-      type: note.type === 'text' ? 'code' : 'text',
-      language: note.type === 'text' ? 'javascript' : undefined,
-      updated: new Date(),
-    });
-  }, [note, onUpdate]);
+  const toggleNoteType = useCallback(
+    (e: any) => {
+      e.stopPropagation();
+      onUpdate({
+        ...note,
+        type: note.type === 'text' ? 'code' : 'text',
+        language: note.type === 'text' ? 'javascript' : undefined,
+        updated: new Date(),
+      });
+    },
+    [note, onUpdate]
+  );
 
-  const handleColorChange = useCallback((color: string) => {
-    onUpdate({
-      ...note,
-      color,
-      updated: new Date(),
-    });
-  }, [note, onUpdate]);
+  const handleColorChange = useCallback(
+    (color: string) => {
+      onUpdate({
+        ...note,
+        color,
+        updated: new Date(),
+      });
+    },
+    [note, onUpdate]
+  );
 
   // Add event listeners for drag and resize
   useEffect(() => {
     if (isDragging) {
       // Set cursor to grabbing for the entire document while dragging
       document.body.style.cursor = 'grabbing';
-      
+
       const handleMove = (e: MouseEvent) => {
         e.preventDefault();
         const newX = e.clientX - dragOffset.x;
         const newY = e.clientY - dragOffset.y;
-        
+
         // Throttle updates to improve performance
         requestAnimationFrame(() => {
           onUpdate({
@@ -187,7 +219,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
 
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('mouseup', handleUp);
-      
+
       return () => {
         document.removeEventListener('mousemove', handleMove);
         document.removeEventListener('mouseup', handleUp);
@@ -201,15 +233,15 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
     if (isResizing) {
       // Set cursor to se-resize for the entire document while resizing
       document.body.style.cursor = 'se-resize';
-      
+
       const handleMove = (e: MouseEvent) => {
         e.preventDefault();
         const deltaX = e.clientX - resizeStart.x;
         const deltaY = e.clientY - resizeStart.y;
-        
+
         const newWidth = Math.max(150, resizeStart.width + deltaX);
         const newHeight = Math.max(100, resizeStart.height + deltaY);
-        
+
         requestAnimationFrame(() => {
           onUpdate({
             ...note,
@@ -228,7 +260,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
 
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('mouseup', handleUp);
-      
+
       return () => {
         document.removeEventListener('mousemove', handleMove);
         document.removeEventListener('mouseup', handleUp);
@@ -257,7 +289,10 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
       onClick={handleNoteClick}
     >
       {/* Note header */}
-      <div className="flex justify-between items-center p-2" style={{ backgroundColor: note.color }}>
+      <div
+        className="flex justify-between items-center p-2"
+        style={{ backgroundColor: note.color }}
+      >
         <div className="flex items-center gap-2">
           <button
             onClick={toggleNoteType}
@@ -275,9 +310,9 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
           )}
         </div>
         <div className="flex items-center gap-2">
-          <ColorPicker 
-            currentColor={note.color} 
-            onColorChange={handleColorChange} 
+          <ColorPicker
+            currentColor={note.color}
+            onColorChange={handleColorChange}
           />
           <button
             onClick={handleDeleteClick}
@@ -301,7 +336,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
             onKeyDown={handleKeyDown}
             onClick={handleTextareaClick}
             className="w-full bg-transparent border-none outline-none resize-none text-sm"
-            style={{ 
+            style={{
               fontFamily: note.type === 'code' ? 'monospace' : 'inherit',
               height: 'calc(100% - 40px)',
               minHeight: 'calc(100% - 40px)',
@@ -313,33 +348,40 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
               pointerEvents: 'auto',
               zIndex: 1000,
             }}
-            placeholder={note.type === 'code' ? 'Enter your code here...' : 'Enter your note here...'}
+            placeholder={
+              note.type === 'code'
+                ? 'Enter your code here...'
+                : 'Enter your note here...'
+            }
             tabIndex={0}
             autoFocus
           />
         ) : (
-          <div 
+          <div
             className="w-full overflow-auto"
-            style={{ 
+            style={{
               height: 'calc(100% - 40px)',
             }}
             onClick={handleContentClick}
           >
             {note.type === 'code' && note.content ? (
-              <CodeBlock 
-                code={note.content} 
-                language={note.language || 'javascript'} 
+              <CodeBlock
+                code={note.content}
+                language={note.language || 'javascript'}
                 className="h-full"
               />
             ) : (
-              <div 
+              <div
                 className="w-full h-full text-sm whitespace-pre-wrap"
-                style={{ 
+                style={{
                   fontFamily: note.type === 'code' ? 'monospace' : 'inherit',
                 }}
                 onClick={handleContentClick}
               >
-                {note.content || (note.type === 'code' ? 'Enter your code here...' : 'Enter your note here...')}
+                {note.content ||
+                  (note.type === 'code'
+                    ? 'Enter your code here...'
+                    : 'Enter your note here...')}
               </div>
             )}
           </div>
@@ -351,7 +393,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
         className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize opacity-50 hover:opacity-100"
         style={{
           clipPath: 'polygon(100% 0%, 0% 100%, 100% 100%)',
-          backgroundColor: '#9ca3af'
+          backgroundColor: '#9ca3af',
         }}
         onMouseDown={handleResizeStart}
       />
