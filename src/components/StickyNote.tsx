@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'preact/hooks';
 import type { Note, Position } from '../types';
 import { CodeBlock } from './CodeBlock';
 import { ColorPicker } from './ColorPicker';
-import { FileText, Code2, X, Copy } from 'lucide-preact';
+import { FileText, Code2, Trash2, Copy } from 'lucide-preact';
 
 interface StickyNoteProps {
   note: Note;
@@ -320,9 +320,9 @@ export function StickyNote({
             title={note.type === 'code' ? 'Switch to text' : 'Switch to code'}
           >
             {note.type === 'code' ? (
-              <Code2 size={14} className="text-gray-700" />
+              <Code2 size={14} className="text-white/70" />
             ) : (
-              <FileText size={14} className="text-gray-700" />
+              <FileText size={14} className="text-white/70" />
             )}
           </button>
           {note.type === 'code' && (
@@ -336,7 +336,7 @@ export function StickyNote({
               className="p-1 hover:opacity-60"
               title="Copy content"
             >
-              <Copy size={14} className="text-gray-700" />
+              <Copy size={14} className="text-white/70" />
             </button>
           )}
           <ColorPicker
@@ -348,7 +348,7 @@ export function StickyNote({
             className="p-1 hover:opacity-60"
             title="Delete note"
           >
-            <X size={14} className="text-red-600" />
+            <Trash2 size={14} className="text-white/70" />
           </button>
         </div>
       </div>

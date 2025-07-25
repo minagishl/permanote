@@ -32,7 +32,7 @@ export function ColorPicker({ currentColor, onColorChange }: ColorPickerProps) {
         className="p-1 hover:opacity-60"
         title="Change color"
       >
-        <Palette size={14} className="text-gray-700" />
+        <Palette size={14} className="text-white/70" />
       </button>
 
       {isOpen && (
