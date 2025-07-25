@@ -157,7 +157,6 @@ The code syntax highlighting supports the following languages:
 - C
 - C++
 - CSS
-- HTML
 - JSON
 - Bash/Shell
 
