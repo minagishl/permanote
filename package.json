@@ -1,0 +1,29 @@
+{
+  "name": "permanote",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide"
+    ]
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.8",
+    "@types/prismjs": "^1.26.5",
+    "lucide-preact": "^0.525.0",
+    "preact": "^10.26.5",
+    "prismjs": "^1.30.0",
+    "tailwindcss": "^4.1.8"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.1",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
+  }
+}
