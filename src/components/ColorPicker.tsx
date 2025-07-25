@@ -34,14 +34,14 @@ export function ColorPicker({ currentColor, onColorChange }: ColorPickerProps) {
       >
         <Palette size={14} className="text-gray-700" />
       </button>
-      
+
       {isOpen && (
-        <div 
+        <div
           className="absolute top-6 left-0 bg-white shadow-lg border border-gray-200 p-2 z-50"
           style={{ minWidth: '100px' }}
         >
           <div className="grid grid-cols-5 gap-1">
-            {PRESET_COLORS.map(color => (
+            {PRESET_COLORS.map((color) => (
               <button
                 key={color}
                 onClick={(e: any) => {

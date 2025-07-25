@@ -27,14 +27,12 @@ export function CodeBlock({ code, language, className = '' }: CodeBlockProps) {
   }, [code, language]);
 
   return (
-    <pre 
+    <pre
       ref={preRef}
       className={`text-sm overflow-auto ${className}`}
       style={{ margin: 0, background: 'transparent' }}
     >
-      <code className={`language-${language}`}>
-        {code}
-      </code>
+      <code className={`language-${language}`}>{code}</code>
     </pre>
   );
 }
