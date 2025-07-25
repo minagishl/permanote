@@ -155,6 +155,9 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
   // Add event listeners for drag and resize
   useEffect(() => {
     if (isDragging) {
+      // Set cursor to grabbing for the entire document while dragging
+      document.body.style.cursor = 'grabbing';
+      
       const handleMove = (e: MouseEvent) => {
         e.preventDefault();
         const newX = e.clientX - dragOffset.x;
@@ -173,6 +176,8 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
 
       const handleUp = () => {
         setIsDragging(false);
+        // Reset cursor when dragging ends
+        document.body.style.cursor = '';
       };
 
       document.addEventListener('mousemove', handleMove);
@@ -181,12 +186,17 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
       return () => {
         document.removeEventListener('mousemove', handleMove);
         document.removeEventListener('mouseup', handleUp);
+        // Reset cursor when component unmounts
+        document.body.style.cursor = '';
       };
     }
   }, [isDragging, dragOffset, note, onUpdate]);
 
   useEffect(() => {
     if (isResizing) {
+      // Set cursor to se-resize for the entire document while resizing
+      document.body.style.cursor = 'se-resize';
+      
       const handleMove = (e: MouseEvent) => {
         e.preventDefault();
         const deltaX = e.clientX - resizeStart.x;
@@ -207,6 +217,8 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
 
       const handleUp = () => {
         setIsResizing(false);
+        // Reset cursor when resizing ends
+        document.body.style.cursor = '';
       };
 
       document.addEventListener('mousemove', handleMove);
@@ -215,6 +227,8 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
       return () => {
         document.removeEventListener('mousemove', handleMove);
         document.removeEventListener('mouseup', handleUp);
+        // Reset cursor when component unmounts
+        document.body.style.cursor = '';
       };
     }
   }, [isResizing, resizeStart, note, onUpdate]);
@@ -300,7 +314,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
           />
         ) : (
           <div 
-            className="w-full overflow-auto cursor-text"
+            className="w-full overflow-auto"
             style={{ 
               height: 'calc(100% - 40px)',
             }}
@@ -314,7 +328,7 @@ export function StickyNote({ note, onUpdate, onDelete, onBringToFront }: StickyN
               />
             ) : (
               <div 
-                className="w-full h-full text-sm whitespace-pre-wrap cursor-text"
+                className="w-full h-full text-sm whitespace-pre-wrap"
                 style={{ 
                   fontFamily: note.type === 'code' ? 'monospace' : 'inherit',
                 }}
