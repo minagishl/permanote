@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'preact/hooks';
 import type { Note, Position } from '../types';
 import { CodeBlock } from './CodeBlock';
 import { ColorPicker } from './ColorPicker';
-import { FileText, Code2, X } from 'lucide-preact';
+import { FileText, Code2, X, Copy } from 'lucide-preact';
 
 interface StickyNoteProps {
   note: Note;
@@ -189,6 +189,26 @@ export function StickyNote({
     [note, onUpdate]
   );
 
+  const handleCopyContent = useCallback(
+    async (e: any) => {
+      e.stopPropagation();
+      try {
+        await navigator.clipboard.writeText(note.content);
+        console.log('Content copied to clipboard');
+      } catch (err) {
+        console.error('Failed to copy content: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = note.content;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+    },
+    [note.content]
+  );
+
   // Add event listeners for drag and resize
   useEffect(() => {
     if (isDragging) {
@@ -310,6 +330,15 @@ export function StickyNote({
           )}
         </div>
         <div className="flex items-center gap-2">
+          {note.content && (
+            <button
+              onClick={handleCopyContent}
+              className="p-1 hover:opacity-60"
+              title="Copy content"
+            >
+              <Copy size={14} className="text-gray-700" />
+            </button>
+          )}
           <ColorPicker
             currentColor={note.color}
             onColorChange={handleColorChange}
